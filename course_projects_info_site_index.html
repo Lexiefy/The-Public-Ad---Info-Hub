@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Course Projects — Info</title>
+  <meta name="description" content="Simple, editable info site for course projects" />
+  <style>
+    :root{
+      --bg:#0b0b0b; /* black */
+      --panel:#111;
+      --muted:#9aa0a6;
+      --accent:#00bcd4;
+      --glass: rgba(255,255,255,0.04);
+      --radius:12px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:#fff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      padding:28px; display:flex; align-items:center; justify-content:center;
+    }
+    .container{width:100%; max-width:980px}
+    header{display:flex; align-items:center; gap:16px; margin-bottom:20px}
+    .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7b1fa2);display:grid;place-items:center;font-weight:700}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .panel{background:linear-gradient(180deg,var(--panel),rgba(255,255,255,0.02)); padding:18px;border-radius:var(--radius); box-shadow:0 6px 18px rgba(0,0,0,0.6)}
+    .flex{display:flex;gap:12px}
+    .grid-2{display:grid;grid-template-columns:1fr 320px;gap:16px}
+    @media (max-width:840px){.grid-2{grid-template-columns:1fr} .container{padding:0 12px}}
+
+    /* activity list */
+    .list{margin-top:12px}
+    .item{padding:14px;border-radius:10px;background:var(--glass);display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+    .meta{font-size:13px;color:var(--muted)}
+
+    /* form */
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type=text],input[type=date],textarea,select{width:100%;padding:10px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff;border-radius:8px}
+    textarea{min-height:80px}
+    .btn{display:inline-block;padding:10px 12px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#7b1fa2);color:#031216;border:none;font-weight:700;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04)}
+    .small{font-size:12px;padding:8px 10px;border-radius:8px}
+
+    /* controls */
+    .controls{display:flex;gap:8px;align-items:center}
+    .action{font-size:13px;color:var(--muted);cursor:pointer}
+    .badge{background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:999px;font-size:12px}
+    footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">CP</div>
+      <div>
+        <h1>Course Projects — Info</h1>
+        <p class="lead">A clean, black-themed info site for posting upcoming course activities. Edit locally and save changes to your browser.</p>
+      </div>
+    </header>
+
+    <div class="grid-2">
+      <main>
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong>Upcoming Projects & Activities</strong>
+              <div class="meta">Public page — share this file or host as <code>index.html</code></div>
+            </div>
+            <div class="controls">
+              <button class="small ghost" id="enterEdit">Enter Edit Mode</button>
+              <button class="small" id="exportBtn">Export JSON</button>
+            </div>
+          </div>
+
+          <div id="list" class="list" aria-live="polite">
+            <!-- items inserted here -->
+          </div>
+
+          <footer>Tip: Use the "Enter Edit Mode" button to add or edit entries. Changes are saved in your browser (localStorage).</footer>
+        </div>
+      </main>
+
+      <aside>
+        <div class="panel">
+          <strong>Admin / Edit</strong>
+          <div class="meta" style="margin-bottom:8px">This section is shown only in edit mode. Protected by a passcode (default: <code>admin123</code> — change in settings).</div>
+
+          <div id="authArea">
+            <label>Enter passcode to edit</label>
+            <input type="password" id="passcodeInput" placeholder="Type passcode" />
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn" id="unlockBtn">Unlock</button>
+              <button class="btn ghost" id="viewOnlyBtn">View Only</button>
+            </div>
+          </div>
+
+          <div id="editArea" style="display:none;margin-top:12px">
+            <label>Title</label>
+            <input id="title" type="text" placeholder="Project title" />
+            <label>Date</label>
+            <input id="date" type="date" />
+            <label>Short description</label>
+            <textarea id="desc" placeholder="One or two lines about the project"></textarea>
+            <label>Optional link (Google Form / Drive / RSVP)</label>
+            <input id="link" type="text" placeholder="https://" />
+
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button class="btn" id="addBtn">Add / Save</button>
+              <button class="btn ghost" id="clearForm">Clear</button>
+            </div>
+
+            <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.04)" />
+            <label>Settings</label>
+            <div style="display:flex;gap:8px;flex-direction:column">
+              <div class="meta">Change admin passcode (current saved in browser only)</div>
+              <input id="newPass" type="text" placeholder="new passcode" />
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button class="btn" id="changePass">Change Passcode</button>
+                <button class="btn ghost" id="resetAll">Reset All (clear entries)</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Simple client-only editable site. Data stored in localStorage under key 'cp_activities_v1'.
+    // If you'd rather edit the HTML directly, open this file and modify the data below or in the browser DevTools Application -> Local Storage.
+
+    const STORAGE_KEY = 'cp_activities_v1';
+    const PASS_KEY = 'cp_admin_pass_v1';
+    const DEFAULT_PASS = 'admin123';
+
+    // UI refs
+    const listEl = document.getElementById('list');
+    const enterEdit = document.getElementById('enterEdit');
+    const exportBtn = document.getElementById('exportBtn');
+    const authArea = document.getElementById('authArea');
+    const editArea = document.getElementById('editArea');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const viewOnlyBtn = document.getElementById('viewOnlyBtn');
+
+    const passInput = document.getElementById('passcodeInput');
+    const titleI = document.getElementById('title');
+    const dateI = document.getElementById('date');
+    const descI = document.getElementById('desc');
+    const linkI = document.getElementById('link');
+    const addBtn = document.getElementById('addBtn');
+    const clearForm = document.getElementById('clearForm');
+    const newPass = document.getElementById('newPass');
+    const changePass = document.getElementById('changePass');
+    const resetAll = document.getElementById('resetAll');
+
+    // helpers
+    function loadData(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      }catch(e){return []}
+    }
+    function saveData(data){localStorage.setItem(STORAGE_KEY, JSON.stringify(data));}
+    function getPass(){return localStorage.getItem(PASS_KEY) || DEFAULT_PASS}
+    function setPass(p){localStorage.setItem(PASS_KEY, p)}
+
+    // render
+    function renderList(){
+      const data = loadData().sort((a,b)=> (a.date||'') > (b.date||'') ? 1 : -1);
+      listEl.innerHTML = data.length ? data.map((item,idx)=>{
+        const d = item.date ? (new Date(item.date)).toLocaleDateString() : '';
+        return `
+          <div class="item" data-idx="${idx}">
+            <div>
+              <div style="font-weight:700">${escapeHtml(item.title||'Untitled')}</div>
+              <div class="meta">${d} &middot; ${escapeHtml(item.desc||'No description')}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              ${item.link ? `<a class="badge" href="${escapeAttr(item.link)}" target="_blank" rel="noopener">Open Link</a>` : ''}
+              <div style="display:flex;gap:8px">
+                <button class="small ghost action" data-act="edit">Edit</button>
+                <button class="small ghost action" data-act="del">Delete</button>
+              </div>
+            </div>
+          </div>`
+      }).join('') : `<div class="meta">No upcoming projects. Enter edit mode to add one.</div>`;
+    }
+
+    // escape helpers
+    function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+    function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;') }
+
+    // events
+    enterEdit.addEventListener('click',()=>{ // emulate click unlock to show auth
+      document.getElementById('passcodeInput').focus();
+    });
+
+    unlockBtn.addEventListener('click',()=>{
+      const p = passInput.value || '';
+      if(p === getPass()){
+        authArea.style.display='none'; editArea.style.display='block';
+        passInput.value = '';
+      } else {
+        alert('Wrong passcode. Default is "admin123" if you have not changed it.');
+      }
+    });
+
+    viewOnlyBtn.addEventListener('click',()=>{authArea.style.display='none'; editArea.style.display='none';});
+
+    addBtn.addEventListener('click',()=>{
+      const t = titleI.value.trim();
+      if(!t){alert('Title required'); return}
+      const items = loadData();
+      // If editing existing (we reuse title+date as simple heuristic)
+      const newItem = {title:t, date: dateI.value||null, desc: descI.value||'', link: linkI.value||''};
+      items.push(newItem);
+      saveData(items);
+      renderList();
+      clearFormFn();
+    });
+
+    clearForm.addEventListener('click',clearFormFn);
+    function clearFormFn(){ titleI.value=''; dateI.value=''; descI.value=''; linkI.value=''; }
+
+    // delegate edit / delete
+    listEl.addEventListener('click', (e)=>{
+      const act = e.target.closest('[data-act]');
+      if(!act) return;
+      const itemEl = e.target.closest('.item');
+      const idx = Number(itemEl.dataset.idx);
+      const actName = act.dataset.act;
+      const items = loadData();
+      if(actName === 'del'){
+        if(confirm('Delete this entry?')){ items.splice(idx,1); saveData(items); renderList(); }
+      } else if(actName === 'edit'){
+        const it = items[idx];
+        if(!it) return;
+        // populate form for editing: we will remove the old item and let user re-add
+        titleI.value = it.title || '';
+        dateI.value = it.date || '';
+        descI.value = it.desc || '';
+        linkI.value = it.link || '';
+        items.splice(idx,1); saveData(items); renderList();
+        window.scrollTo({top:0,behavior:'smooth'});
+        if(authArea.style.display !== 'none'){
+          authArea.style.display='none'; editArea.style.display='block';
+        }
+      }
+    });
+
+    // export
+    exportBtn.addEventListener('click',()=>{
+      const data = loadData();
+      const blob = new Blob([JSON.stringify(data, null, 2)],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'course-projects.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // change passcode & reset
+    changePass.addEventListener('click',()=>{
+      const np = newPass.value.trim(); if(!np){alert('Enter new passcode'); return}
+      setPass(np); newPass.value=''; alert('Passcode updated (saved in this browser).');
+    });
+    resetAll.addEventListener('click',()=>{ if(confirm('Clear all saved entries?')){ localStorage.removeItem(STORAGE_KEY); renderList(); alert('All entries cleared.'); }});
+
+    // init sample content if empty
+    (function init(){
+      if(!localStorage.getItem(STORAGE_KEY)){
+        const sample = [
+          {title:'Mini Research Draft', date:'2025-11-10', desc:'Submit one-page draft and research outline.', link:''},
+          {title:'Group Presentation', date:'2025-11-25', desc:'Final slide deck and 12-min presentation per group.', link:''}
+        ];
+        saveData(sample);
+      }
+      renderList();
+    })();
+
+    // Accessibility: keyboard shortcut to toggle edit prompt (Ctrl+E)
+    document.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key.toLowerCase() === 'e'){ e.preventDefault(); passInput.focus(); }});
+
+  </script>
+</body>
+</html>
